@@ -65,8 +65,8 @@ barplot(female3[,input$region],
 #Run it
 shinyApp(ui, server)
 
-
-
+#You can run it by using:
+runGitHub( "<my repository name>", "<my user name>") 
 
 
 
