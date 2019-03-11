@@ -48,8 +48,6 @@ server <- function(input, output) {
   
 #Fill in the spot we created for the barplot
 output$EmployeePlot <- renderPlot ({
-  palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
-            "#FF7F00", "#FFFF33"))
     
 #Barplot
 barplot(female3[,input$region], 
