@@ -1,0 +1,72 @@
+#TidyTuesday
+#Board Games
+#Shiny second try
+
+install.packages("DT")
+
+#Load libraries
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(gganimate)
+library(extrafont)
+library(readr)
+library(shiny)
+library(rsconnect)
+library(DT)
+
+#Read file
+games<- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-12/board_games.csv")
+
+#select variables
+games2 <- games %>%
+  select(c("max_players","min_age","category","average_rating", "year_published","users_rated"))
+
+#change colnames > ease of use
+colnames(games2) <- c("max_players", "min_age", "category", "rating", "year","number_rates")
+
+#ui
+ui <- fluidPage(
+  fluidRow(
+    column(width = 8,
+           plotOutput("plot1", height = 300, width=700,
+                      click = "plot1_click"
+                      )
+           )
+    ),
+  fluidRow(
+    column(width = 10,
+           h4("Click the points for info!"),
+           dataTableOutput("click_info")
+    )
+    
+  )
+)
+
+#server
+server <- function(input, output) {
+ 
+#Make scatterplot
+output$plot1 <- renderPlot({
+      ggplot(games2, aes(number_rates, rating)) + 
+      geom_point(colour="red")+
+      xlab("# of users ratings")+ ylab("Average rating")+
+      ggtitle(label = "TidyTuesday: Wanna play a game?", subtitle="All you want to know about Board Games")+
+      labs(caption="Source: Board Game Geeks,  Plot by @sil_aarts")+
+      theme(panel.background = element_rect(fill = "white"),axis.line = element_line(size=1, colour = "black"),
+            plot.title = element_text(color="black", face="bold", size=22, hjust=0),
+            plot.subtitle=element_text(size=16, hjust=0, face="italic", color="black"),
+            plot.caption= element_text(size=8, hjust=1, color="azure4"))
+                    })
+#Make Table
+output$click_info <- 
+    DT::renderDataTable(DT::datatable({
+    nearPoints(games2, input$plot1_click)},
+
+#Change lay-out table
+options = list(pageLength = 25,dom = 'ftl'), rownames = FALSE, escape = FALSE) %>%    ## dom = 'ftl'
+  formatStyle('category',  color = 'white',backgroundColor = 'black', fontWeight = 'bold')
+)
+}
+
+shinyApp(ui=ui, server=server)
